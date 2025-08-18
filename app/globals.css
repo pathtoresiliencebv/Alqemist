@@ -115,4 +115,9 @@
       scrollbar-color: oklch(0.705 0.015 286.067 / 25%) transparent;
     }
   }
+
+  /* Custom scrollbar styles for thread viewport */
+  .thread-viewport > [data-radix-scroll-area-content] {
+    @apply flex flex-col items-center self-stretch bg-inherit;
+  }
 }

@@ -16,6 +16,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { SyntaxHighlighter } from "./shiki-highlighter";
+import { MermaidDiagram } from "./mermaid-diagram";
 import { cn } from "@/lib/utils";
 
 // LaTeX preprocessing function voor custom delimiters
@@ -143,8 +144,14 @@ const defaultComponents = memoizeMarkdownComponents({
   pre: ({ className, ...props }) => (
     <pre className={cn("overflow-x-auto rounded-b-lg bg-black p-4 text-white", className)} {...props} />
   ),
-  code: function Code({ className, ...props }) {
+  code: function Code({ className, children, ...props }) {
     const isCodeBlock = useIsMarkdownCodeBlock();
+    
+    // Check if this is a mermaid code block
+    if (isCodeBlock && typeof children === 'string' && children.trim().startsWith('mermaid')) {
+      return <MermaidDiagram language="mermaid">{children.replace(/^mermaid\s*/, '')}</MermaidDiagram>;
+    }
+    
     return (
       <code
         className={cn(!isCodeBlock && "bg-muted rounded border font-semibold", className)}

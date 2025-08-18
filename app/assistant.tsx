@@ -20,6 +20,12 @@ import { Separator } from "@/components/ui/separator";
 import { useAppStore } from "@/lib/store";
 import { useUser } from "@clerk/nextjs";
 
+// Import Tool UIs
+import { WeatherToolUI } from "@/components/tool-ui/weather-tool";
+import { SearchToolUI } from "@/components/tool-ui/search-tool";
+import { DataAnalysisToolUI } from "@/components/tool-ui/data-analysis-tool";
+import { ApprovalToolUI } from "@/components/tool-ui/approval-tool";
+
 export const Assistant = () => {
   const { isSignedIn, user } = useUser();
   const { setUser, setAuthenticated } = useAppStore();
@@ -55,6 +61,12 @@ export const Assistant = () => {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      {/* Register Tool UIs */}
+      <WeatherToolUI />
+      <SearchToolUI />
+      <DataAnalysisToolUI />
+      <ApprovalToolUI />
+      
       <SidebarProvider>
         <div className="flex h-dvh w-full pr-0.5">
           <AppSidebar />

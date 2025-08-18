@@ -25,6 +25,7 @@ import {
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "./markdown-text";
 import { ToolFallback } from "./tool-fallback";
@@ -36,34 +37,37 @@ import {
 
 export const Thread: FC = () => {
   return (
-    <ThreadPrimitive.Root
-      // aui-thread-root
-      className="bg-background flex h-full flex-col"
-      style={{
-        ["--thread-max-width" as string]: "48rem",
-        ["--thread-padding-x" as string]: "1rem",
-      }}
-    >
-      {/* aui-thread-viewport */}
-      <ThreadPrimitive.Viewport className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll">
-        <ThreadWelcome />
+    <ScrollArea className="h-full">
+      <ThreadPrimitive.Root
+        // aui-thread-root
+        className="bg-background flex h-full flex-col"
+        style={{
+          ["--thread-max-width" as string]: "48rem",
+          ["--thread-padding-x" as string]: "1rem",
+        }}
+      >
+        {/* aui-thread-viewport */}
+        <ThreadPrimitive.Viewport className="thread-viewport relative flex min-w-0 flex-1 flex-col gap-6">
+          <ThreadWelcome />
 
-        <ThreadPrimitive.Messages
-          components={{
-            UserMessage,
-            EditComposer,
-            AssistantMessage,
-          }}
-        />
+          <ThreadPrimitive.Messages
+            components={{
+              UserMessage,
+              EditComposer,
+              AssistantMessage,
+            }}
+          />
 
-        <ThreadPrimitive.If empty={false}>
-          {/* aui-thread-viewport-spacer */}
-          <motion.div className="min-h-6 min-w-6 shrink-0" />
-        </ThreadPrimitive.If>
-      </ThreadPrimitive.Viewport>
+          <ThreadPrimitive.If empty={false}>
+            {/* aui-thread-viewport-spacer */}
+            <motion.div className="min-h-6 min-w-6 shrink-0" />
+          </ThreadPrimitive.If>
+        </ThreadPrimitive.Viewport>
 
-      <Composer />
-    </ThreadPrimitive.Root>
+        <Composer />
+      </ThreadPrimitive.Root>
+      <ScrollBar />
+    </ScrollArea>
   );
 };
 
