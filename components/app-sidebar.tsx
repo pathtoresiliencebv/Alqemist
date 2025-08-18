@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { ThreadList } from "./assistant-ui/thread-list"
+import { UserThreadList } from "@/components/user-thread-list"
 import { useAppStore } from "@/lib/store"
 import { useClerk } from "@clerk/nextjs"
 
@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <ThreadList />
+        <UserThreadList />
       </SidebarContent>
       
       <SidebarRail />
