@@ -7,6 +7,7 @@ import {
 import { auth } from '@clerk/nextjs/server';
 import { executeQuery } from '@/lib/database';
 import { UsageTracker, calculateUsageCost, SUBSCRIPTION_TIERS } from '@/lib/usage-tracking';
+import { getModel } from '@/lib/model-providers';
 
 // Create OpenRouter client
 const openrouter = createOpenAI({
@@ -40,19 +41,22 @@ export async function POST(req: Request) {
       });
     }
 
-    const { messages, threadId }: { messages: UIMessage[]; threadId?: string } = await req.json();
+    const { messages, threadId, model }: { 
+      messages: UIMessage[]; 
+      threadId?: string; 
+      model?: string; 
+    } = await req.json();
     
-    // Default to ChatGPT, maar support voor OpenRouter modellen
-    const model = req.headers.get("X-Model") || "gpt-4o";
+    // Use model from request body or fallback to header or default
+    const modelId = model || req.headers.get("X-Model") || "gpt-4o-mini";
     
     let selectedModel;
-    
-    // Bepaal of het een OpenRouter model is
-    if (model.includes("openai/") || model.includes("anthropic/") || model.includes("meta-llama/")) {
-      selectedModel = openrouter(model);
-    } else {
-      // Gebruik standaard OpenAI voor ChatGPT modellen
-      selectedModel = openai(model);
+    try {
+      // Use the new multi-provider model system
+      selectedModel = getModel(modelId);
+    } catch (error) {
+      console.warn(`Model ${modelId} not found, falling back to gpt-4o-mini`);
+      selectedModel = getModel("gpt-4o-mini");
     }
 
     // TODO: Save messages to database if threadId is provided
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
       resource: 'chat',
       quantity: 1,
       metadata: {
-        model: model,
+        model: modelId,
         messageCount: messages.length,
         threadId: threadId || null,
       },

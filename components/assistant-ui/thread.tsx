@@ -36,6 +36,7 @@ import {
 } from "./attachment";
 
 export const Thread: FC = () => {
+
   return (
     <ScrollArea className="h-full">
       <ThreadPrimitive.Root

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { CompositeAttachmentAdapter, WebSpeechSynthesisAdapter } from "@assistant-ui/react";
@@ -28,10 +28,21 @@ import { ApprovalToolUI } from "@/components/tool-ui/approval-tool";
 import { FormToolUI } from "@/components/tool-ui/form-tool";
 import { WorkflowToolUI } from "@/components/tool-ui/workflow-tool";
 import { ErrorRecoveryToolUI } from "@/components/tool-ui/error-recovery-tool";
+import { ModelSelector } from "@/components/model-selector";
+import { setSelectedModel } from "@/lib/chat-api";
+// Import chat-api to initialize fetch override
+import "@/lib/chat-api";
 
 export const Assistant = () => {
   const { isSignedIn, user } = useUser();
   const { setUser, setAuthenticated } = useAppStore();
+
+  const [selectedModel, setSelectedModelState] = useState("gpt-4o-mini");
+  
+  const handleModelChange = (modelId: string) => {
+    setSelectedModelState(modelId);
+    setSelectedModel(modelId); // Update global state for fetch intercept
+  };
 
   const runtime = useChatRuntime({
     adapters: {
@@ -77,9 +88,20 @@ export const Assistant = () => {
         <div className="flex h-dvh w-full pr-0.5">
           <AppSidebar />
           <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 h-4" />
+            <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <Separator orientation="vertical" className="mr-2 h-4" />
+                <h1 className="font-semibold">Alqemist AI</h1>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ModelSelector
+                  selectedModel={selectedModel}
+                  onModelChange={handleModelChange}
+                  userTier="professional"
+                  className="w-56"
+                />
+              </div>
             </header>
             <div className="flex-1 overflow-hidden">
               <Thread />
