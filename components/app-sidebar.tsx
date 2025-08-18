@@ -1,6 +1,5 @@
 import * as React from "react"
 import { LogOut, User } from "lucide-react"
-import Link from "next/link"
 import Image from "next/image"
 import {
   Sidebar,
@@ -13,11 +12,17 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { ThreadList } from "./assistant-ui/thread-list"
-import { useAuth } from "@/lib/auth"
+import { useAppStore } from "@/lib/store"
+import { useClerk } from "@clerk/nextjs"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { getUser, signOut } = useAuth();
-  const user = getUser();
+  const { user } = useAppStore();
+  const { signOut } = useClerk();
+  
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = "/";
+  };
   
   return (
     <Sidebar {...props}>
@@ -49,10 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" onClick={() => {
-              signOut();
-              window.location.href = "/";
-            }}>
+            <SidebarMenuButton size="lg" onClick={handleSignOut}>
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <User className="size-4" />
               </div>

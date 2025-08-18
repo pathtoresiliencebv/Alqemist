@@ -1,45 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { useAuth, type User } from "@/lib/auth";
+import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  const { getUser, signIn } = useAuth();
-  const [isClient, setIsClient] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [showSignIn, setShowSignIn] = useState(false);
+  const { isSignedIn } = useUser();
+  const router = useRouter();
 
+  // Redirect authenticated users to assistant
   useEffect(() => {
-    setIsClient(true);
-    setUser(getUser());
-  }, []);
-
-  const handleSignIn = () => {
-    if (email) {
-      const newUser = signIn(email, name);
-      setUser(newUser);
-      window.location.href = "/assistant";
+    if (isSignedIn) {
+      router.push("/assistant");
     }
-  };
-
-  if (!isClient) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  // If user is authenticated, redirect to assistant
-  if (user) {
-    window.location.href = "/assistant";
-    return null;
-  }
+  }, [isSignedIn, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100">
@@ -56,13 +32,14 @@ export default function Home() {
             />
             <span className="text-2xl font-bold text-gray-800">Alqemist</span>
           </div>
-          <Button 
-            variant="outline" 
-            className="border-purple-300 text-purple-700 hover:bg-purple-50"
-            onClick={() => setShowSignIn(true)}
-          >
-            Sign In
-          </Button>
+          <SignInButton mode="modal">
+            <Button 
+              variant="outline" 
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              Inloggen
+            </Button>
+          </SignInButton>
         </div>
       </header>
 
@@ -99,20 +76,21 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Button 
-                size="lg" 
-                className="px-8 py-3 text-white shadow-lg hover:shadow-xl transition-all"
-                style={{ backgroundColor: "#852ab5" }}
-                onClick={() => setShowSignIn(true)}
-              >
-                Get Started Free
-              </Button>
+              <SignUpButton mode="modal">
+                <Button 
+                  size="lg" 
+                  className="px-8 py-3 text-white shadow-lg hover:shadow-xl transition-all"
+                  style={{ backgroundColor: "#852ab5" }}
+                >
+                  Gratis Beginnen
+                </Button>
+              </SignUpButton>
               <Button 
                 variant="outline" 
                 size="lg" 
                 className="px-8 py-3 border-purple-300 text-purple-700 hover:bg-purple-50"
               >
-                Learn More
+                Meer Informatie
               </Button>
             </div>
           </div>
@@ -159,70 +137,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Sign In Modal */}
-      {showSignIn && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full">
-            <div className="text-center mb-6">
-              <Image
-                src="/alqemist-logo.png"
-                alt="Alqemist"
-                width={60}
-                height={60}
-                className="rounded-lg mx-auto mb-4"
-              />
-              <h2 className="text-2xl font-bold text-gray-900">Welcome to Alqemist</h2>
-              <p className="text-gray-600 mt-2">Sign in to start your AI journey</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name (optional)
-                </label>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowSignIn(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSignIn}
-                  disabled={!email}
-                  className="flex-1 text-white"
-                  style={{ backgroundColor: "#852ab5" }}
-                >
-                  Sign In
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

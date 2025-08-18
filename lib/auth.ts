@@ -1,50 +1,69 @@
-"use client";
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { useAppStore } from './store';
 
-// Simple auth system using localStorage for demo
-// In production, this would be replaced with real authentication
-
-export interface User {
+export interface ClerkUser {
   id: string;
-  email: string;
-  name: string;
+  emailAddresses: Array<{
+    emailAddress: string;
+    id: string;
+  }>;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  imageUrl?: string;
+  primaryEmailAddress?: {
+    emailAddress: string;
+    id: string;
+  };
+  publicMetadata: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export const useAuth = () => {
-  const getUser = (): User | null => {
-    if (typeof window === 'undefined') return null;
-    
-    const userData = localStorage.getItem('alqemist_user');
-    return userData ? JSON.parse(userData) : null;
-  };
+// Server-side functions
+export const getCurrentUser = async () => {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    return null;
+  }
 
-  const setUser = (user: User | null) => {
-    if (typeof window === 'undefined') return;
-    
-    if (user) {
-      localStorage.setItem('alqemist_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('alqemist_user');
+  return {
+    id: userId,
+    email: '',
+    name: '',
+    avatarUrl: '',
+    preferences: {},
+  };
+};
+
+export const requireAuth = async () => {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    redirect('/sign-in');
+  }
+  
+  return userId;
+};
+
+// Client-side hook
+export const useAuth = () => {
+  const { user, setUser, isAuthenticated, setAuthenticated } = useAppStore();
+
+  const signOut = async () => {
+    try {
+      setUser(null);
+      setAuthenticated(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
-  const signIn = (email: string, name?: string) => {
-    const user: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: name || email.split('@')[0],
-    };
-    setUser(user);
-    return user;
-  };
-
-  const signOut = () => {
-    setUser(null);
-  };
-
   return {
-    getUser,
-    setUser,
-    signIn,
+    user,
+    isAuthenticated,
     signOut,
   };
 };

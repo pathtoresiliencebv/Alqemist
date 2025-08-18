@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { Thread } from "@/components/assistant-ui/thread";
@@ -10,17 +11,32 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { useAuth, type User } from "@/lib/auth";
+import { useAppStore } from "@/lib/store";
+import { useUser } from "@clerk/nextjs";
 
-interface AssistantProps {
-  user: User;
-}
+export const Assistant = () => {
+  const { isSignedIn, user } = useUser();
+  const { setUser, setAuthenticated } = useAppStore();
 
-export const Assistant = ({ user }: AssistantProps) => {
   const runtime = useChatRuntime();
-  const { signOut } = useAuth();
+
+  // Sync user data when authentication state changes
+  useEffect(() => {
+    if (isSignedIn && user) {
+      const userData = {
+        id: user.id,
+        email: user.primaryEmailAddress?.emailAddress || '',
+        name: user.fullName || user.firstName || '',
+        avatarUrl: user.imageUrl,
+        preferences: user.publicMetadata || {},
+      };
+      setUser(userData);
+      setAuthenticated(true);
+    } else {
+      setUser(null);
+      setAuthenticated(false);
+    }
+  }, [isSignedIn, user, setUser, setAuthenticated]);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
