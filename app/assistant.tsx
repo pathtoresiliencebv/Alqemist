@@ -28,38 +28,9 @@ export const Assistant = ({ user }: AssistantProps) => {
         <div className="flex h-dvh w-full pr-0.5">
           <AppSidebar />
           <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger />
-                <Separator orientation="vertical" className="mr-2 h-4" />
-                <Image
-                  src="/alqemist-logo.png"
-                  alt="Alqemist"
-                  width={36}
-                  height={36}
-                  className="rounded-lg"
-                />
-                <span className="text-xl font-bold text-purple-700">
-                  Alqemist
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 hidden md:block">
-                  Welcome, {user.name || user.email}
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50"
-                  onClick={() => {
-                    signOut();
-                    window.location.href = "/";
-                  }}
-                >
-                  Sign Out
-                </Button>
-              </div>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+              <SidebarTrigger />
+              <Separator orientation="vertical" className="mr-2 h-4" />
             </header>
             <div className="flex-1 overflow-hidden">
               <Thread />

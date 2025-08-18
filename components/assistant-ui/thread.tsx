@@ -64,7 +64,7 @@ const ThreadScrollToBottom: FC = () => {
   return (
     <ThreadPrimitive.ScrollToBottom asChild>
       <TooltipIconButton
-        tooltip="Scroll to bottom"
+        tooltip="Scroll naar beneden"
         variant="outline"
         // aui-thread-scroll-to-bottom
         className="dark:bg-background dark:hover:bg-accent absolute -top-12 z-10 self-center rounded-full p-4 disabled:invisible"
@@ -92,7 +92,7 @@ const ThreadWelcome: FC = () => {
               // aui-thread-welcome-message-motion-1
               className="text-2xl font-semibold"
             >
-              Hello there!
+              Hallo daar!
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -102,7 +102,7 @@ const ThreadWelcome: FC = () => {
               // aui-thread-welcome-message-motion-2
               className="text-muted-foreground/65 text-2xl"
             >
-              How can I help you today?
+              Hoe kan ik je vandaag helpen?
             </motion.div>
           </div>
         </div>
@@ -117,24 +117,24 @@ const ThreadWelcomeSuggestions: FC = () => {
     <div className="grid w-full gap-2 sm:grid-cols-2">
       {[
         {
-          title: "What are the advantages",
-          label: "of using Assistant Cloud?",
-          action: "What are the advantages of using Assistant Cloud?",
+          title: "Wat zijn de voordelen",
+          label: "van het gebruik van Assistant Cloud?",
+          action: "Wat zijn de voordelen van het gebruik van Assistant Cloud?",
         },
         {
-          title: "Write code to",
-          label: `demonstrate topological sorting`,
-          action: `Write code to demonstrate topological sorting`,
+          title: "Schrijf code om",
+          label: `topologische sortering te demonstreren`,
+          action: `Schrijf code om topologische sortering te demonstreren`,
         },
         {
-          title: "Help me write an essay",
-          label: `about AI chat applications`,
-          action: `Help me write an essay about AI chat applications`,
+          title: "Help me een essay schrijven",
+          label: `over AI chat applicaties`,
+          action: `Help me een essay schrijven over AI chat applicaties`,
         },
         {
-          title: "What is the weather",
-          label: "in San Francisco?",
-          action: "What is the weather in San Francisco?",
+          title: "Wat is het weer",
+          label: "in Amsterdam?",
+          action: "Wat is het weer in Amsterdam?",
         },
       ].map((suggestedAction, index) => (
         <motion.div
@@ -182,13 +182,13 @@ const Composer: FC = () => {
       <ComposerPrimitive.Root className="focus-within::ring-offset-2 relative flex w-full flex-col rounded-2xl focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-white">
         {/* aui-composer-input */}
         <ComposerPrimitive.Input
-          placeholder="Send a message..."
+          placeholder="Stuur een bericht..."
           className={
             "bg-muted border-border dark:border-muted-foreground/15 focus:outline-primary placeholder:text-muted-foreground max-h-[calc(50dvh)] min-h-16 w-full resize-none rounded-t-2xl border-x border-t px-4 pt-2 pb-3 text-base outline-none"
           }
           rows={1}
           autoFocus
-          aria-label="Message input"
+          aria-label="Bericht invoer"
         />
         <ComposerAction />
       </ComposerPrimitive.Root>
@@ -201,7 +201,7 @@ const ComposerAction: FC = () => {
     // aui-composer-action-wrapper
     <div className="bg-muted border-border dark:border-muted-foreground/15 relative flex items-center justify-between rounded-b-2xl border-x border-b p-2">
       <TooltipIconButton
-        tooltip="Attach file"
+        tooltip="Bestand bijvoegen"
         variant="ghost"
         // aui-composer-attachment-button
         className="hover:bg-foreground/15 dark:hover:bg-background/50 scale-115 p-3.5"
@@ -219,7 +219,7 @@ const ComposerAction: FC = () => {
             variant="default"
             // aui-composer-send
             className="dark:border-muted-foreground/90 border-muted-foreground/60 hover:bg-primary/75 size-8 rounded-full border"
-            aria-label="Send message"
+            aria-label="Bericht verzenden"
           >
             {/* aui-composer-send-icon */}
             <ArrowUpIcon className="size-5" />
@@ -234,7 +234,7 @@ const ComposerAction: FC = () => {
             variant="default"
             // aui-composer-cancel
             className="dark:border-muted-foreground/90 border-muted-foreground/60 hover:bg-primary/75 size-8 rounded-full border"
-            aria-label="Stop generating"
+            aria-label="Stop genereren"
           >
             {/* aui-composer-cancel-icon */}
             <Square className="size-3.5 fill-white dark:size-4 dark:fill-black" />
@@ -302,7 +302,7 @@ const AssistantActionBar: FC = () => {
       className="text-muted-foreground data-floating:bg-background col-start-3 row-start-2 mt-3 ml-3 flex gap-1 data-floating:absolute data-floating:mt-2 data-floating:rounded-md data-floating:border data-floating:p-1 data-floating:shadow-sm"
     >
       <ActionBarPrimitive.Copy asChild>
-        <TooltipIconButton tooltip="Copy">
+        <TooltipIconButton tooltip="Kopiëren">
           <MessagePrimitive.If copied>
             <CheckIcon />
           </MessagePrimitive.If>
@@ -312,7 +312,7 @@ const AssistantActionBar: FC = () => {
         </TooltipIconButton>
       </ActionBarPrimitive.Copy>
       <ActionBarPrimitive.Reload asChild>
-        <TooltipIconButton tooltip="Refresh">
+        <TooltipIconButton tooltip="Vernieuwen">
           <RefreshCwIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Reload>
@@ -353,7 +353,7 @@ const UserActionBar: FC = () => {
       className="col-start-1 mt-2.5 mr-3 flex flex-col items-end"
     >
       <ActionBarPrimitive.Edit asChild>
-        <TooltipIconButton tooltip="Edit">
+        <TooltipIconButton tooltip="Bewerken">
           <PencilIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Edit>
@@ -376,13 +376,13 @@ const EditComposer: FC = () => {
         {/* aui-edit-composer-footer */}
         <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
           <ComposerPrimitive.Cancel asChild>
-            <Button variant="ghost" size="sm" aria-label="Cancel edit">
-              Cancel
+            <Button variant="ghost" size="sm" aria-label="Bewerken annuleren">
+              Annuleren
             </Button>
           </ComposerPrimitive.Cancel>
           <ComposerPrimitive.Send asChild>
-            <Button size="sm" aria-label="Update message">
-              Update
+            <Button size="sm" aria-label="Bericht bijwerken">
+              Bijwerken
             </Button>
           </ComposerPrimitive.Send>
         </div>
@@ -406,7 +406,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
       {...rest}
     >
       <BranchPickerPrimitive.Previous asChild>
-        <TooltipIconButton tooltip="Previous">
+        <TooltipIconButton tooltip="Vorige">
           <ChevronLeftIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Previous>
@@ -415,7 +415,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
         <BranchPickerPrimitive.Number /> / <BranchPickerPrimitive.Count />
       </span>
       <BranchPickerPrimitive.Next asChild>
-        <TooltipIconButton tooltip="Next">
+        <TooltipIconButton tooltip="Volgende">
           <ChevronRightIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Next>
