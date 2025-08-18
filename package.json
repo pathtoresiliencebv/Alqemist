@@ -21,6 +21,7 @@
     "@assistant-ui/react-syntax-highlighter": "^0.10.10",
     "@clerk/nextjs": "^6.31.2",
     "@hookform/resolvers": "^5.2.1",
+    "@pinecone-database/pinecone": "^6.1.2",
     "@prisma/client": "^6.14.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.3",

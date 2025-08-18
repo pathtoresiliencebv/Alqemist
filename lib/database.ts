@@ -135,6 +135,68 @@ export const initializeDatabase = async () => {
       )
     `);
 
+    // Create memories table for long-term memory system
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS memories (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('conversation', 'preference', 'fact', 'context', 'relationship', 'skill')),
+        content TEXT NOT NULL,
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        expires_at TIMESTAMP WITH TIME ZONE
+      )
+    `);
+
+    // Create indexes for memory search performance
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_memories_user_type 
+      ON memories (user_id, type);
+    `);
+
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_memories_content_search 
+      ON memories USING GIN (to_tsvector('english', content));
+    `);
+
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_memories_expires 
+      ON memories (expires_at) WHERE expires_at IS NOT NULL;
+    `);
+
+    // Create user profiles table for personalization
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS user_profiles (
+        user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        profile_data JSONB NOT NULL DEFAULT '{}',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    // Create scheduled tasks table
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS scheduled_tasks (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        task_type VARCHAR(50) NOT NULL CHECK (task_type IN ('reminder', 'followup', 'recurring', 'suggestion')),
+        scheduled_for TIMESTAMP WITH TIME ZONE NOT NULL,
+        recurrence_pattern VARCHAR(100), -- 'daily', 'weekly', 'monthly', 'custom'
+        status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled', 'snoozed')),
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_scheduled_tasks_user_status 
+      ON scheduled_tasks (user_id, status, scheduled_for);
+    `);
+
     console.log('Database tables created successfully');
   } catch (error) {
     console.error('Error creating database tables:', error);
