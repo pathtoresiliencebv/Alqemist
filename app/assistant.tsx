@@ -3,6 +3,12 @@
 import { useEffect } from "react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
+import { CompositeAttachmentAdapter, WebSpeechSynthesisAdapter } from "@assistant-ui/react";
+import { 
+  VisionImageAdapter, 
+  PDFAttachmentAdapter, 
+  EnhancedTextAttachmentAdapter 
+} from "@/lib/attachment-adapters";
 import { Thread } from "@/components/assistant-ui/thread";
 import {
   SidebarInset,
@@ -18,7 +24,16 @@ export const Assistant = () => {
   const { isSignedIn, user } = useUser();
   const { setUser, setAuthenticated } = useAppStore();
 
-  const runtime = useChatRuntime();
+  const runtime = useChatRuntime({
+    adapters: {
+      attachments: new CompositeAttachmentAdapter([
+        new VisionImageAdapter(),
+        new PDFAttachmentAdapter(),
+        new EnhancedTextAttachmentAdapter(),
+      ]),
+      speech: new WebSpeechSynthesisAdapter(),
+    },
+  });
 
   // Sync user data when authentication state changes
   useEffect(() => {

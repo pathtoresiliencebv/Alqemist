@@ -9,16 +9,39 @@ import {
   useIsMarkdownCodeBlock,
 } from "@assistant-ui/react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { FC, memo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { SyntaxHighlighter } from "./shiki-highlighter";
 import { cn } from "@/lib/utils";
+
+// LaTeX preprocessing function voor custom delimiters
+function normalizeCustomMathTags(input: string): string {
+  return (
+    input
+      // Convert [/math]...[/math] to $$...$$
+      .replace(/\[\/math\]([\s\S]*?)\[\/math\]/g, (_, content) => `$$${content.trim()}$$`)
+
+      // Convert [/inline]...[/inline] to $...$
+      .replace(/\[\/inline\]([\s\S]*?)\[\/inline\]/g, (_, content) => `$${content.trim()}$`)
+
+      // Convert \( ... \) to $...$ (inline math) - handles both single and double backslashes
+      .replace(/\\{1,2}\(([\s\S]*?)\\{1,2}\)/g, (_, content) => `$${content.trim()}$`)
+
+      // Convert \[ ... \] to $$...$$ (block math) - handles both single and double backslashes
+      .replace(/\\{1,2}\[([\s\S]*?)\\{1,2}\]/g, (_, content) => `$$${content.trim()}$$`)
+  );
+}
 
 const MarkdownTextImpl = () => {
   return (
     <MarkdownTextPrimitive
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+      preprocess={normalizeCustomMathTags}
       className="aui-md"
       components={defaultComponents}
     />
@@ -65,6 +88,7 @@ const useCopyToClipboard = ({
 };
 
 const defaultComponents = memoizeMarkdownComponents({
+  SyntaxHighlighter: SyntaxHighlighter,
   h1: ({ className, ...props }) => (
     <h1 className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)} {...props} />
   ),

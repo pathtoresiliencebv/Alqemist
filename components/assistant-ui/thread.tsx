@@ -10,7 +10,7 @@ import type { FC } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
-  PlusIcon,
+
   CopyIcon,
   CheckIcon,
   PencilIcon,
@@ -18,6 +18,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Square,
+  VolumeXIcon,
+  Volume2Icon,
 } from "lucide-react";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
@@ -26,6 +28,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "./markdown-text";
 import { ToolFallback } from "./tool-fallback";
+import { 
+  ComposerAttachments, 
+  ComposerAddAttachment, 
+  UserMessageAttachments 
+} from "./attachment";
 
 export const Thread: FC = () => {
   return (
@@ -180,6 +187,7 @@ const Composer: FC = () => {
       </ThreadPrimitive.Empty>
       {/* aui-composer-root */}
       <ComposerPrimitive.Root className="focus-within::ring-offset-2 relative flex w-full flex-col rounded-2xl focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-white">
+        <ComposerAttachments />
         {/* aui-composer-input */}
         <ComposerPrimitive.Input
           placeholder="Stuur een bericht..."
@@ -200,17 +208,7 @@ const ComposerAction: FC = () => {
   return (
     // aui-composer-action-wrapper
     <div className="bg-muted border-border dark:border-muted-foreground/15 relative flex items-center justify-between rounded-b-2xl border-x border-b p-2">
-      <TooltipIconButton
-        tooltip="Bestand bijvoegen"
-        variant="ghost"
-        // aui-composer-attachment-button
-        className="hover:bg-foreground/15 dark:hover:bg-background/50 scale-115 p-3.5"
-        onClick={() => {
-          console.log("Attachment clicked - not implemented");
-        }}
-      >
-        <PlusIcon />
-      </TooltipIconButton>
+      <ComposerAddAttachment />
 
       <ThreadPrimitive.If running={false}>
         <ComposerPrimitive.Send asChild>
@@ -316,6 +314,16 @@ const AssistantActionBar: FC = () => {
           <RefreshCwIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Reload>
+      <ActionBarPrimitive.Speak asChild>
+        <TooltipIconButton tooltip="Voorlezen">
+          <Volume2Icon />
+        </TooltipIconButton>
+      </ActionBarPrimitive.Speak>
+      <ActionBarPrimitive.StopSpeaking asChild>
+        <TooltipIconButton tooltip="Stop voorlezen">
+          <VolumeXIcon />
+        </TooltipIconButton>
+      </ActionBarPrimitive.StopSpeaking>
     </ActionBarPrimitive.Root>
   );
 };
@@ -331,6 +339,8 @@ const UserMessage: FC = () => {
         data-role="user"
       >
         <UserActionBar />
+
+        <UserMessageAttachments />
 
         {/* aui-user-message-content */}
         <div className="bg-muted text-foreground col-start-2 rounded-3xl px-5 py-2.5 break-words">
