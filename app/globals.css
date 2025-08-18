@@ -76,10 +76,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-
   :root {
     color-scheme: light;
   }
