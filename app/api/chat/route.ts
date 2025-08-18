@@ -6,6 +6,7 @@ import {
 } from "ai";
 import { auth } from '@clerk/nextjs/server';
 import { executeQuery } from '@/lib/database';
+import { UsageTracker, calculateUsageCost, SUBSCRIPTION_TIERS } from '@/lib/usage-tracking';
 
 // Create OpenRouter client
 const openrouter = createOpenAI({
@@ -24,6 +25,19 @@ export async function POST(req: Request) {
     
     if (!userId) {
       return new Response('Unauthorized', { status: 401 });
+    }
+
+    // Check usage limits before processing
+    const usageLimits = await UsageTracker.canMakeRequest('api_call', 1, userId);
+    if (!usageLimits.allowed) {
+      return new Response(JSON.stringify({
+        error: 'Usage limit exceeded',
+        message: usageLimits.reason,
+        resetTime: usageLimits.resetTime
+      }), { 
+        status: 429,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const { messages, threadId }: { messages: UIMessage[]; threadId?: string } = await req.json();
@@ -51,6 +65,21 @@ export async function POST(req: Request) {
     const result = streamText({
       model: selectedModel,
       messages: convertToModelMessages(messages),
+    });
+
+    // Track API call usage (async to not block response)
+    UsageTracker.track({
+      type: 'api_call',
+      resource: 'chat',
+      quantity: 1,
+      metadata: {
+        model: model,
+        messageCount: messages.length,
+        threadId: threadId || null,
+      },
+      cost: calculateUsageCost('api_call', 1, SUBSCRIPTION_TIERS[0]), // Default to starter tier
+    }).catch(error => {
+      console.error('Failed to track usage:', error);
     });
 
     return result.toUIMessageStreamResponse();

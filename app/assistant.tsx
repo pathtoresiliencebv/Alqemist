@@ -25,6 +25,9 @@ import { WeatherToolUI } from "@/components/tool-ui/weather-tool";
 import { SearchToolUI } from "@/components/tool-ui/search-tool";
 import { DataAnalysisToolUI } from "@/components/tool-ui/data-analysis-tool";
 import { ApprovalToolUI } from "@/components/tool-ui/approval-tool";
+import { FormToolUI } from "@/components/tool-ui/form-tool";
+import { WorkflowToolUI } from "@/components/tool-ui/workflow-tool";
+import { ErrorRecoveryToolUI } from "@/components/tool-ui/error-recovery-tool";
 
 export const Assistant = () => {
   const { isSignedIn, user } = useUser();
@@ -66,6 +69,9 @@ export const Assistant = () => {
       <SearchToolUI />
       <DataAnalysisToolUI />
       <ApprovalToolUI />
+      <FormToolUI />
+      <WorkflowToolUI />
+      <ErrorRecoveryToolUI />
       
       <SidebarProvider>
         <div className="flex h-dvh w-full pr-0.5">

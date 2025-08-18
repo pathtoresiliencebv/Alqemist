@@ -95,6 +95,46 @@ export const initializeDatabase = async () => {
       )
     `);
 
+    // Create usage_events table for tracking
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS usage_events (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('api_call', 'token_usage', 'file_upload', 'attachment_processing', 'tool_execution')),
+        resource VARCHAR(255) NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        metadata JSONB DEFAULT '{}',
+        cost INTEGER DEFAULT 0,
+        timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
+    // Create indexes for performance
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_usage_events_user_timestamp 
+      ON usage_events (user_id, timestamp);
+    `);
+
+    await executeQuery(`
+      CREATE INDEX IF NOT EXISTS idx_usage_events_type 
+      ON usage_events (type);
+    `);
+
+    // Create subscriptions table
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS subscriptions (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        stripe_subscription_id VARCHAR(255) UNIQUE,
+        tier VARCHAR(50) NOT NULL DEFAULT 'starter',
+        status VARCHAR(50) NOT NULL DEFAULT 'active',
+        current_period_start TIMESTAMP WITH TIME ZONE,
+        current_period_end TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+
     console.log('Database tables created successfully');
   } catch (error) {
     console.error('Error creating database tables:', error);
