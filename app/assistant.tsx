@@ -29,6 +29,7 @@ import { FormToolUI } from "@/components/tool-ui/form-tool";
 import { WorkflowToolUI } from "@/components/tool-ui/workflow-tool";
 import { ErrorRecoveryToolUI } from "@/components/tool-ui/error-recovery-tool";
 import { ModelSelector } from "@/components/model-selector";
+import { PersonaSelector } from "@/components/persona/persona-selector";
 import { setSelectedModel } from "@/lib/chat-api";
 // Import chat-api to initialize fetch override
 import "@/lib/chat-api";
@@ -94,14 +95,20 @@ export const Assistant = () => {
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <h1 className="font-semibold">Alqemist AI</h1>
               </div>
-              <div className="flex items-center space-x-2">
-                <ModelSelector
-                  selectedModel={selectedModel}
-                  onModelChange={handleModelChange}
-                  userTier="professional"
-                  className="w-56"
-                />
-              </div>
+                                    <div className="flex items-center space-x-2">
+                        <PersonaSelector
+                          className="w-48"
+                          onPersonaChange={(personaId) => {
+                            console.log('Persona changed to:', personaId);
+                          }}
+                        />
+                        <ModelSelector
+                          selectedModel={selectedModel}
+                          onModelChange={handleModelChange}
+                          userTier="professional"
+                          className="w-56"
+                        />
+                      </div>
             </header>
             <div className="flex-1 overflow-hidden">
               <Thread />

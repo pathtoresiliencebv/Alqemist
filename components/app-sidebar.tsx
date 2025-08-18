@@ -12,6 +12,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { UserThreadList } from "@/components/user-thread-list"
+import { ProactiveSuggestions } from "@/components/suggestions/proactive-suggestions"
 import { useAppStore } from "@/lib/store"
 import { useClerk } from "@clerk/nextjs"
 
@@ -48,6 +49,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <UserThreadList />
+        <div className="mt-4 px-2">
+          <ProactiveSuggestions />
+        </div>
       </SidebarContent>
       
       <SidebarRail />

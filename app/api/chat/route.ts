@@ -10,6 +10,8 @@ import { UsageTracker, calculateUsageCost, SUBSCRIPTION_TIERS } from '@/lib/usag
 import { getModel } from '@/lib/model-providers';
 import { memorySystem } from '@/lib/memory-system';
 import { taskScheduler } from '@/lib/task-scheduler';
+import { personaManager } from '@/lib/custom-personas';
+import { proactiveSuggestionsEngine } from '@/lib/proactive-suggestions';
 
 // Create OpenRouter client
 const openrouter = createOpenAI({
@@ -65,17 +67,32 @@ export async function POST(req: Request) {
     const userMessage = messages[messages.length - 1];
     const userInput = userMessage?.role === 'user' ? String(userMessage.content) : '';
 
-    // Generate personalized context using memory system
+    // Generate personalized context using memory system and active persona
     let contextPrompt = '';
     if (userInput) {
       try {
+        // Get personalized system prompt based on active persona
+        const personaPrompt = await personaManager.generatePersonalizedSystemPrompt(userId);
+        
+        // Get memory context
         const memoryContext = await memorySystem.generateResponseContext(userId, userInput);
-        contextPrompt = memoryContext.contextPrompt;
+        
+        // Combine persona and memory context
+        contextPrompt = personaPrompt;
+        if (memoryContext.contextPrompt) {
+          contextPrompt += `\n\n${memoryContext.contextPrompt}`;
+        }
         
         // Check for task-related requests and create reminders
         await handleTaskRequests(userId, userInput, threadId);
+        
+        // Generate proactive suggestions (async, don't block response)
+        generateProactiveSuggestions(userId, userInput).catch(error => {
+          console.error('Failed to generate proactive suggestions:', error);
+        });
+        
       } catch (error) {
-        console.warn('Failed to generate memory context:', error);
+        console.warn('Failed to generate personalized context:', error);
       }
     }
 
@@ -321,4 +338,108 @@ function extractMeetingTitle(input: string): string | null {
 function extractFollowUpTime(input: string): Date | null {
   // Similar logic to extractReminderTime for follow-ups
   return extractReminderTime(input);
+}
+
+/**
+ * Generate proactive suggestions based on user input and context
+ */
+async function generateProactiveSuggestions(userId: string, userInput: string): Promise<void> {
+  try {
+    // Track user activity for pattern analysis
+    await trackUserActivity(userId, 'chat', { 
+      input_length: userInput.length,
+      contains_question: userInput.includes('?'),
+      topic_hints: extractTopicHints(userInput)
+    });
+
+    // Generate suggestions based on patterns
+    const suggestions = await proactiveSuggestionsEngine.generateSuggestions(userId);
+    
+    // Store suggestions in database for later retrieval
+    for (const suggestion of suggestions) {
+      await storeSuggestion(userId, suggestion);
+    }
+  } catch (error) {
+    console.error('Failed to generate proactive suggestions:', error);
+  }
+}
+
+/**
+ * Track user activity for pattern learning
+ */
+async function trackUserActivity(userId: string, activityType: string, data: any): Promise<void> {
+  try {
+    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    await executeQuery(`
+      INSERT INTO user_activity (user_id, session_id, activity_type, activity_data, timestamp)
+      VALUES ($1, $2, $3, $4, NOW())
+    `, [userId, sessionId, activityType, JSON.stringify(data)]);
+  } catch (error) {
+    console.error('Failed to track user activity:', error);
+  }
+}
+
+/**
+ * Store a proactive suggestion
+ */
+async function storeSuggestion(userId: string, suggestion: any): Promise<void> {
+  try {
+    await executeQuery(`
+      INSERT INTO proactive_suggestions (
+        id, user_id, type, title, description, confidence, priority,
+        metadata, actions, created_at, expires_at, shown, dismissed
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    `, [
+      suggestion.id,
+      userId,
+      suggestion.type,
+      suggestion.title,
+      suggestion.description,
+      suggestion.confidence,
+      suggestion.priority,
+      JSON.stringify(suggestion.metadata),
+      JSON.stringify(suggestion.actions),
+      suggestion.createdAt,
+      suggestion.expiresAt || null,
+      false,
+      false
+    ]);
+  } catch (error) {
+    console.error('Failed to store suggestion:', error);
+  }
+}
+
+/**
+ * Extract topic hints from user input for pattern analysis
+ */
+function extractTopicHints(input: string): string[] {
+  const lowerInput = input.toLowerCase();
+  const hints: string[] = [];
+  
+  // Technical topics
+  if (lowerInput.includes('react') || lowerInput.includes('javascript') || lowerInput.includes('typescript')) {
+    hints.push('frontend-development');
+  }
+  if (lowerInput.includes('node') || lowerInput.includes('express') || lowerInput.includes('api')) {
+    hints.push('backend-development');
+  }
+  if (lowerInput.includes('database') || lowerInput.includes('sql') || lowerInput.includes('postgres')) {
+    hints.push('database');
+  }
+  
+  // Business topics
+  if (lowerInput.includes('meeting') || lowerInput.includes('vergadering')) {
+    hints.push('meetings');
+  }
+  if (lowerInput.includes('project') || lowerInput.includes('planning')) {
+    hints.push('project-management');
+  }
+  
+  // Learning topics
+  if (lowerInput.includes('learn') || lowerInput.includes('leren') || lowerInput.includes('how to')) {
+    hints.push('learning');
+  }
+  
+  return hints;
 }
